@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Traductor Multidioma</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --bg: #f9fafb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --surface: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .app-wrapper {
+      display: flex;
+      gap: 2rem;
+      max-width: 1200px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .column {
+      flex: 1 1 500px;
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+      padding: 2rem;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 1rem;
+      display: block;
+    }
+
+    select, textarea, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 1rem;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      max-height: 150px;
+      line-height: 1.4;
+    }
+
+    .translation-block textarea {
+      min-height: 50px;
+      font-size: 0.95rem;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+      margin-top: 1.5rem;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--muted);
+    }
+
+    .translation-block {
+      margin-bottom: 1.5rem;
+    }
+
+    .translation-block strong {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .note {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      color: #92400e;
+      line-height: 1.5;
+    }
+
+    .note a {
+      color: #b45309;
+      text-decoration: underline;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .note a:hover {
+      color: #92400e;
+    }
+
+    /* 🌙 Modo oscuro manual */
+    body.dark {
+      --bg: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --surface: #0f172a;
+    }
+
+    body.dark .column {
+      background: var(--surface);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    body.dark select,
+    body.dark textarea,
+    body.dark button {
+      background: #1e293b;
+      color: var(--text);
+      border: 1px solid #334155;
+    }
+
+    body.dark textarea::placeholder,
+    body.dark select option {
+      color: var(--muted);
+    }
+
+    body.dark .note {
+      background-color: #3b2f1c;
+      border-left-color: #eab308;
+      color: #fef9c3;
+    }
+
+    body.dark .note a {
+      color: #facc15;
+    }
+
+    body.dark .note a:hover {
+      color: #fde047;
+    }
+
+    #themeToggle {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 1rem;
+      color: var(--text);
+      cursor: pointer;
+      background:var(--text);
+      color:var(--bg);
+      width:200px;
+    }
+
+    body.dark #themeToggle{
+      background-color: var(--text);
+      color:var(--bg);
+    }
+  </style>
+</head>
+<body>
+  <button id="themeToggle">🌓 Cambiar tema</button>
+  <div class="app-wrapper">
+    <div class="column">
+      <h1>🌍 Traductor</h1>
+
+      <label for="sourceLang">Idioma origen:</label>
+      <select id="sourceLang"></select>
+
+      <label for="targetLang">Idioma destino:</label>
+      <select id="targetLang"></select>
+
+      <label for="inputText">Texto original:</label>
+      <textarea id="inputText" placeholder="Escribe el texto a traducir..."></textarea>
+
+      <button id="translateBtn">Traducir</button>
+      <div class="status" id="status"></div>
+
+      <label for="outputText">Traducción seleccionada:</label>
+      <textarea id="outputText" readonly></textarea>
+      <div class="note">
+        <p>ℹ️ Para el uso de Translator, es necesario el uso de Chrome en su versión 138+. Este script ha sido creado por mera curiosidad, pero las posibilidades que ofrece son infinitas. ¡Disfrutadlo!</p>
+        <p>Más info en: <a href="https://developer.chrome.com/docs/ai/translator-api?hl=es-419" target="_blank">https://developer.chrome.com/docs/ai/translator-api?hl=es-419</a>.</p>
+        <p>👨‍💻 Código disponible en 
+          <a href="https://github.com/rasnerdev/traductor_js_api/" target="_blank">
+            <strong>rasnerdev</strong>
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="column">
+      <h2>🌐 Traducciones globales</h2>
+      <div id="allResults"></div>
+    </div>
+  </div>
+
+  <script>
+    const languageList = [
+      { code: "es", name: "Español" },
+      { code: "en", name: "Inglés" },
+      { code: "fr", name: "Francés" },
+      { code: "de", name: "Alemán" },
+      { code: "it", name: "Italiano" },
+      { code: "pt", name: "Portugués" },
+      { code: "ja", name: "Japonés" },
+      { code: "zh", name: "Chino" },
+      { code: "ko", name: "Coreano" },
+      { code: "ru", name: "Ruso" }
+    ];
+
+    function cargarIdiomas() {
+      const origen = document.getElementById("sourceLang");
+      const destino = document.getElementById("targetLang");
+
+      languageList.forEach(lang => {
+        const opt1 = new Option(lang.name, lang.code);
+        const opt2 = new Option(lang.name, lang.code);
+        origen.appendChild(opt1);
+        destino.appendChild(opt2);
+      });
+
+      origen.value = "es";
+      destino.value = "en";
+    }
+
+    document.getElementById("translateBtn").addEventListener("click", async () => {
+      const input = document.getElementById("inputText").value.trim();
+      const from = document.getElementById("sourceLang").value;
+      const to = document.getElementById("targetLang").value;
+      const statusEl = document.getElementById("status");
+      const allResultsEl = document.getElementById("allResults");
+      allResultsEl.innerHTML = "";
+
+      if (!input) {
+        alert("Escribe algo para traducir.");
+        return;
+      }
+
+      if (!window.Translator) {
+        alert("La API de traducción no está disponible en este navegador.");
+        return;
+      }
+
+      try {
+        statusEl.textContent = "⏳ Traduciendo...";
+
+        const mainTranslator = await Translator.create({ sourceLanguage: from, targetLanguage: to });
+        const mainResult = await mainTranslator.translate(input);
+        document.getElementById("outputText").value = mainResult;
+
+        for (const lang of languageList) {
+          if (lang.code === from || lang.code === to) continue;
+
+          const translator = await Translator.create({ sourceLanguage: from, targetLanguage: lang.code });
+          const result = await translator.translate(input);
+
+          const block = document.createElement("div");
+          block.className = "translation-block";
+          block.innerHTML = `
+            <strong>${lang.name} (${lang.code}):</strong>
+            <textarea readonly>${result}</textarea>
+          `;
+          allResultsEl.appendChild(block);
+        }
+
+        statusEl.textContent = "✅ Traducciones completadas";
+      } catch (e) {
+        console.error(e);
+        alert("Error al traducir: " + e.message);
+        statusEl.textContent = "❌ Error en la traducción";
+      }
+    });
+
+    // Cambiar tema claro/oscuro
+    const themeToggle = document.getElementById("themeToggle");
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") document.body.classList.add("dark");
+
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+    });
+
+    // Inicializar selects
+    cargarIdiomas();
+  </script>
+</body>
+</html>     
